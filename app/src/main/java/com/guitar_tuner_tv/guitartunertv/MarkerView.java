@@ -71,10 +71,10 @@ public class MarkerView extends View {
         super(context, attrs, defStyleAttr);
 
         // Colores
-        markerColor = Color.BLACK;
-        minutesMarksColor = Color.BLACK;
-        hoursMarksColors = Color.BLACK;
-        colorTexto = Color.BLACK;
+        markerColor = Color.WHITE;
+        minutesMarksColor = Color.WHITE;
+        hoursMarksColors = Color.WHITE;
+        colorTexto = Color.WHITE;
 
         // Object instances
         dibujado = new Paint();
@@ -154,6 +154,7 @@ public class MarkerView extends View {
         dibujado.setColor(colorTexto);
         dibujado.setTextSize(mTickLabelTextSize);
         dibujado.setStrokeWidth(mTextStrokeWidth);
+
         for (Map.Entry<Float, String> entry : mTickLabels.entrySet()) {
             String text = entry.getValue();
             final float textWidth = dibujado.measureText(text);

@@ -2,6 +2,7 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/welcome_screen3_bg"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity"
@@ -15,13 +16,15 @@
             android:id="@+id/vistanotas"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:layout_marginBottom="10dp" />
 
         <com.guitar_tuner_tv.guitartunertv.MarkerView
             android:id="@+id/aguja"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="3"
+            android:layout_marginTop="10dp"
             android:padding="10dp"/>
 
         <TextView
@@ -29,8 +32,9 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
+            android:layout_marginTop="10dp"
             android:gravity="center"
-            android:textColor="?android:attr/textColorPrimary"
+            android:textColor="@color/welcome_screen3_bg"
             android:textSize="32sp"/>
 
 </LinearLayout>

@@ -55,10 +55,10 @@ public class TuningView extends View {
     }
 
     private void init() {
-        mNormalTextColor = Color.BLACK;
-        mSelectedTextColor = Color.BLACK;
-        mPaint.setTextSize(60);
+        mNormalTextColor = Color.WHITE;
+        mSelectedTextColor = Color.WHITE;
         mTuningItemWidth = Color.BLACK;
+        mPaint.setTextSize(60);
     }
 
     public void setSelectedIndex(int selectedIndex, boolean animate) {
@@ -100,10 +100,6 @@ public class TuningView extends View {
         mOffset = (w - mTuningItemWidth) / 2f - mSelectedIndex * mTuningItemWidth;
     }
 
-    public void setTuningType(TuningType tuningType) {
-        this.tuningType = tuningType;
-    }
-
     @Override
     protected void onDraw(Canvas canvas) {
         if (tuningType == null) {
@@ -121,7 +117,10 @@ public class TuningView extends View {
             mPaint.getTextBounds(text, 0, text.length(), mTempRect);
             canvas.drawText(text, mOffset + i * mTuningItemWidth + (mTuningItemWidth - textWidth) / 2f, (getHeight() + mTempRect.height()) / 2f, mPaint);
         }
-
-
     }
+
+    public void setTuningType(TuningType tuningType) {
+        this.tuningType = tuningType;
+    }
+
 }

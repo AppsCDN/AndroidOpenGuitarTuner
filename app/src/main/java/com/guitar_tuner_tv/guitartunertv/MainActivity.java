@@ -60,9 +60,7 @@ public class MainActivity extends AppCompatActivity implements AudioController.P
         SharedPreferences sp = getSharedPreferences("myPref", Context.MODE_PRIVATE);
         if (!sp.getBoolean("first", false)) {
             setIsMicRecording(false);
-            SharedPreferences.Editor editor = sp.edit();
-            editor.putBoolean("first", true);
-            editor.apply();
+
             Intent intent = new Intent(this, IntroActivity.class);
             startActivity(intent);
             finish();

@@ -3,9 +3,22 @@
 
     <style name="AppTheme" parent="@style/Theme.Leanback" />
 
-    <style name="AppIntroTheme" parent="Theme.AppCompat">
+    <style name="AppIntroTheme" parent="MaterialTheme.TranslucentStatus">
         <item name="colorPrimary">#1976D2</item>
         <item name="colorPrimaryDark">#1565C0</item>
         <item name="colorAccent">#E91E63</item>
     </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowTranslucentStatus">true</item>
+    </style>
+
+    <!-- Screens background color-->
+    <color name="welcome_screen1_bg">#f64c73</color>
+    <color name="welcome_screen2_bg">#20d2bb</color>
+    <color name="welcome_screen3_bg">#3395ff</color>
+    <color name="welcome_screen4_bg">#c873f4</color>
+
 </resources>
