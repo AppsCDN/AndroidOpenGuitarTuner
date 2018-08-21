@@ -7,11 +7,9 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 
 import com.github.paolorotolo.appintro.AppIntro2;
 import com.guitar_tuner_tv.guitartunertv.MainActivity;
-import com.guitar_tuner_tv.guitartunertv.R;
 
 /**
  * Just a welcome activity. WIP. Uses AppIntro library: https://github.com/apl-devs/AppIntro
@@ -24,8 +22,6 @@ public class IntroActivity extends AppIntro2 {
         // Note here that we DO NOT use setContentView();
         setColorTransitionsEnabled(true);
 
-        final int colorOne = ContextCompat.getColor(getApplicationContext(), R.color.welcome_screen1_bg);
-
         WelcomeFragment wf = new WelcomeFragment();
         HowToUseFragment ht = new HowToUseFragment();
         addSlide(wf);
@@ -34,7 +30,6 @@ public class IntroActivity extends AppIntro2 {
         // OPTIONAL METHODS
         // Override bar/separator color.
         showStatusBar(false);
-        setBarColor(colorOne);
 
         //setSeparatorColor(Color.parseColor("#2196F3"));
         // Hide Skip/Done button.

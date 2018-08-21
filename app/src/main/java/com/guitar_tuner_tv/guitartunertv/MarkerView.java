@@ -160,7 +160,7 @@ public class MarkerView extends View {
             final float textWidth = dibujado.measureText(text);
             final float pos = entry.getKey();
             if (pos == 0) {
-                canvas.drawText(text, (width - textWidth) / 2.0F + getPaddingLeft(), getPaddingTop() - dibujado.ascent() / 2.0F, dibujado);
+                canvas.drawText(text, (width - textWidth) / 2.0F + getPaddingLeft(), getPaddingTop() - (dibujado.ascent() + 25) / 2.0F, dibujado);
             } else {
                 final float angle = (float) (pos * (90 - Math.toDegrees(Math.acos((width / 2.0F) / height))));
                 canvas.save();
