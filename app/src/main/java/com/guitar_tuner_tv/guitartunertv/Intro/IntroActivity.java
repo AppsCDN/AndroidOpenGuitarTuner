@@ -31,7 +31,6 @@ public class IntroActivity extends AppIntro2 {
         // Override bar/separator color.
         showStatusBar(false);
 
-        //setSeparatorColor(Color.parseColor("#2196F3"));
         // Hide Skip/Done button.
         showSkipButton(false);
         setProgressButtonEnabled(true);
