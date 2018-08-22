@@ -5,24 +5,24 @@ package com.guitar_tuner_tv.guitartunertv;
  */
 public class Note {
 
-    private float frecuencia;
-    private String nombre;
+    private float noteFrequency;
+    private String noteName;
     private int stringNumber;
 
-    protected Note(float frecuencia, String nombre, int stringNumber) {
-        this.frecuencia = frecuencia;
-        this.nombre = nombre;
+    protected Note(float noteFrequency, String noteName, int stringNumber) {
+        this.noteFrequency = noteFrequency;
+        this.noteName = noteName;
         this.stringNumber = stringNumber;
     }
 
     // Getters and setters
 
-    public float getFrecuencia() {
-        return frecuencia;
+    public float getNoteFrequency() {
+        return noteFrequency;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getNoteName() {
+        return noteName;
     }
 
     public int getStringNumber() {

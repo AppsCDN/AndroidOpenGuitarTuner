@@ -40,7 +40,7 @@ public class AudioController extends AsyncTask<Float, Float, Float> {
     private static final int SAMPLE_RATE = 44100;
     private static final int BUFFER_SIZE = 4096;
     private static final int RECORD_OVERLAPS = 3072;
-    private static final int MIN_SIMILAR_TAKES = 20;
+    private static final int MIN_SIMILAR_TAKES = 35;
     private static final float FREQ_TOLERANCE = 80F;
 
     private static List<Float> recordedFrequencies = new ArrayList<>();
@@ -51,7 +51,7 @@ public class AudioController extends AsyncTask<Float, Float, Float> {
     }
 
     interface PublisherResults {
-        void onFrequenceTranslated(Float frecuencia);
+        void onFrequenceTranslated(final Float frecuencia);
     }
 
     static boolean isMicRecording;
@@ -60,7 +60,7 @@ public class AudioController extends AsyncTask<Float, Float, Float> {
     @Override
     protected Float doInBackground(Float... params) {
 
-        PitchDetectionHandler handlerProcesadorFrecuencia = (pitchDetectionResult, audioEvent) -> {
+        PitchDetectionHandler pitchDetector = (pitchDetectionResult, audioEvent) -> {
 
             if (isCancelled()) {
                 stopAudioDispatcher();
@@ -72,24 +72,24 @@ public class AudioController extends AsyncTask<Float, Float, Float> {
                 publishProgress();
             }
 
-            final float frecuenciaActual = pitchDetectionResult.getPitch();
-            Log.e("FRECUENCIA TEST:", String.valueOf(frecuenciaActual));
+            final float detectedFrequency = pitchDetectionResult.getPitch();
+            Log.e("FRECUENCIA TEST:", String.valueOf(detectedFrequency));
 
-            if (frecuenciaActual != -1) {
+            if (detectedFrequency != -1) {
 
-                recordedFrequencies.add(frecuenciaActual);
+                recordedFrequencies.add(detectedFrequency);
 
                 if (recordedFrequencies.size() >= MIN_SIMILAR_TAKES) {
-                    final Float frecuenciaMediana = processAudioCaptured(recordedFrequencies);
-                    publishProgress(frecuenciaMediana);
+                    final Float medianFrequency = processAudioCaptured(recordedFrequencies);
+                    publishProgress(medianFrequency);
                     recordedFrequencies.clear();
 
-                    Log.e("FRECUENCIA GOOD TEST:", String.valueOf(frecuenciaMediana));
+                    Log.e("FRECUENCIA GOOD TEST:", String.valueOf(medianFrequency));
                 }
             }
         };
 
-        PitchProcessor pitchProcessor = new PitchProcessor(YIN, SAMPLE_RATE, BUFFER_SIZE, handlerProcesadorFrecuencia);
+        PitchProcessor pitchProcessor = new PitchProcessor(YIN, SAMPLE_RATE, BUFFER_SIZE, pitchDetector);
 
         audioDispatcher = fromDefaultMicrophone(SAMPLE_RATE, BUFFER_SIZE, RECORD_OVERLAPS);
         audioDispatcher.addAudioProcessor(pitchProcessor);
@@ -160,7 +160,7 @@ public class AudioController extends AsyncTask<Float, Float, Float> {
 
         int i = 0;
 
-        for (Float f : floatList) {
+        for (final Float f : floatList) {
             arrayValores[i++] = (f != null ? f : Float.NaN);
         }
 
@@ -181,7 +181,7 @@ public class AudioController extends AsyncTask<Float, Float, Float> {
         Arrays.sort(floatArray);
 
         // Calculamos la mediana
-        int median = floatArray.length / 2;
+        final int median = floatArray.length / 2;
 
         if (floatArray.length % 2 == 1) {
             medianValue = floatArray[median];

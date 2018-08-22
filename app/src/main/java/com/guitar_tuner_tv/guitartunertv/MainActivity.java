@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity implements AudioController.P
     private TextView vFrequencyText;
 
     // Tuning and strings
-    private TextView tnningName;
+    private TextView tuningName;
     private TextView stringOne;
     private TextView stringTwo;
     private TextView stringThree;
@@ -49,32 +49,28 @@ public class MainActivity extends AppCompatActivity implements AudioController.P
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // After showing the splash screen we load the real app theme.
+        setTheme(R.style.NoActionBar);
+
         super.onCreate(savedInstanceState);
 
-        // Checks if it's the first time the APP is opened
+        // Checks if it's the first time the APP is opened. If it's it redirects to the intro activities.
         SharedPreferences sp = getSharedPreferences("myPref", Context.MODE_PRIVATE);
         if (!sp.getBoolean("first", false)) {
+            // Stops recording
             setIsMicRecording(false);
 
+            // Intent to the welcome activities
             Intent intent = new Intent(this, IntroActivity.class);
             startActivity(intent);
             finish();
         } else {
+            //Inflate the view
             setContentView(R.layout.activity_main);
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-            // Afinación actual
+            // Set the current tuning
             setTunningType(new TuningType("Afinación estándar",
                     new Note[]{
                             new Note(82.41F, "E", 6),
@@ -85,39 +81,147 @@ public class MainActivity extends AppCompatActivity implements AudioController.P
                             new Note(329.63F, "E", 1),
                     }));
 
-            // UI adjustments
+            // View references
             viewMarker = findViewById(R.id.aguja);
             vFrequencyText = findViewById(R.id.frequency_view);
 
+            // Needle set up and UI adjustments
             viewMarker.setTickLabel(-1.0F, "-100c");
-            viewMarker.setTickLabel(0.0F, String.format("%.02fHz", selectedTuningType.getTuningNotes()[0].getFrecuencia()));
+            viewMarker.setTickLabel(0.0F, String.format("%.02fHz", selectedTuningType.getTuningNotes()[0].getNoteFrequency()));
             viewMarker.setTickLabel(1.0F, "+100c");
-            vFrequencyText.setText(String.format("%.02fHz", selectedTuningType.getTuningNotes()[0].getFrecuencia()));
+            vFrequencyText.setText(String.format("%.02fHz", selectedTuningType.getTuningNotes()[0].getNoteFrequency()));
 
-            // Start the AsyncTask
+            // Starts the AsyncTask to capture audio
             new AudioController(selectedTuningType, this).execute();
         }
     }
 
+    /**
+     * Sets the current tuning to the APP.
+     * @param tt tuning type to set.
+     */
     private void setTunningType(final TuningType tt) {
 
-        selectedTuningType = tt;
+        this.selectedTuningType = tt;
 
+        // View references
         stringOne = findViewById(R.id.stringOne);
         stringTwo = findViewById(R.id.stringTwo);
         stringThree = findViewById(R.id.stringThree);
         stringFour = findViewById(R.id.stringFour);
         stringFive = findViewById(R.id.stringFive);
         stringSix = findViewById(R.id.stringSix);
-        tnningName = findViewById(R.id.tuningName);
+        tuningName = findViewById(R.id.tuningName);
 
-        stringSix.setText(tt.getTuningNotes()[0].getNombre());
-        stringFive.setText(tt.getTuningNotes()[1].getNombre());
-        stringFour.setText(tt.getTuningNotes()[2].getNombre());
-        stringThree.setText(tt.getTuningNotes()[3].getNombre());
-        stringTwo.setText(tt.getTuningNotes()[4].getNombre());
-        stringOne.setText(tt.getTuningNotes()[5].getNombre());
-        tnningName.setText(tt.getTuningName());
+        // Sets the current tuning notes to the strings
+        stringSix.setText(tt.getTuningNotes()[0].getNoteName());
+        stringFive.setText(tt.getTuningNotes()[1].getNoteName());
+        stringFour.setText(tt.getTuningNotes()[2].getNoteName());
+        stringThree.setText(tt.getTuningNotes()[3].getNoteName());
+        stringTwo.setText(tt.getTuningNotes()[4].getNoteName());
+        stringOne.setText(tt.getTuningNotes()[5].getNoteName());
+
+        // Sets the current tuning name
+        tuningName.setText(tt.getTuningName());
+    }
+
+    @Override
+    public void onFrequenceTranslated(final Float frequence) {
+        if (frequence != null) {
+            rotateMarker(frequence);
+        }
+    }
+
+    /**
+     * Rotates the marker to the given frequency.
+     * @param reportedFrequency
+     */
+    private void rotateMarker(final float reportedFrequency) {
+
+        Log.e("NOTA DETECTADA: ", String.valueOf(reportedFrequency));
+
+        // Look for the closest/more similar note to the current frequency
+        final Note nota = selectedTuningType.getClosestAlternative(reportedFrequency);
+        // Frequency range we are going to work with
+        double frequencyRange = 1200 * Math.log(reportedFrequency / nota.getNoteFrequency()) / Math.log(2);
+        // Marker final position
+        final float markerPos = (float) (frequencyRange / 100);
+        // We consider it good tuned if the played note is close enough
+        final boolean isGoodTuned = Math.abs(frequencyRange) < 5.0;
+
+        runOnUiThread(() -> {
+            // Set the ideal frequency
+            viewMarker.setTickLabel(0.0F, String.format("%.02fHz", nota.getNoteFrequency()));
+            // Set the current frequency
+            vFrequencyText.setText(String.format("%.02fHz", reportedFrequency));
+            // Turn on on UI the played string
+            enlightString(nota.getStringNumber());
+            // Move the marker
+            viewMarker.animateTip(markerPos);
+
+            if (isGoodTuned) {
+                Toast.makeText(getApplicationContext(), "¡Bien afinado!",
+                        Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    /**
+     * Sets the current played string to green.
+     * @param string played string.
+     */
+    private void enlightString(int string) {
+
+        turnOffAllStrings();
+
+        switch (string) {
+            case 1:
+                turnOnString(stringOne);
+                break;
+            case 2:
+                turnOnString(stringTwo);
+                break;
+            case 3:
+                turnOnString(stringThree);
+                break;
+            case 4:
+                turnOnString(stringFour);
+                break;
+            case 5:
+                turnOnString(stringFive);
+                break;
+            case 6:
+                turnOnString(stringSix);
+                break;
+        }
+    }
+
+    /**
+     * Turns on a the given string.
+     * @param stringPlayed string number.
+     */
+    private void turnOnString(TextView stringPlayed){
+        stringPlayed.setTextColor(Color.GREEN);
+        stringPlayed.setTypeface(stringPlayed.getTypeface(), Typeface.BOLD);
+    }
+
+    /**
+     * Sets all the strings to the regular non-highlight state.
+     */
+    private void turnOffAllStrings() {
+        stringOne.setTextColor(Color.WHITE);
+        stringTwo.setTextColor(Color.WHITE);
+        stringThree.setTextColor(Color.WHITE);
+        stringFour.setTextColor(Color.WHITE);
+        stringFive.setTextColor(Color.WHITE);
+        stringSix.setTextColor(Color.WHITE);
+
+        stringOne.setTypeface(stringOne.getTypeface(), Typeface.NORMAL);
+        stringTwo.setTypeface(stringTwo.getTypeface(), Typeface.NORMAL);
+        stringThree.setTypeface(stringThree.getTypeface(), Typeface.NORMAL);
+        stringFour.setTypeface(stringFour.getTypeface(), Typeface.NORMAL);
+        stringFive.setTypeface(stringFive.getTypeface(), Typeface.NORMAL);
+        stringSix.setTypeface(stringSix.getTypeface(), Typeface.NORMAL);
     }
 
     @Override
@@ -136,85 +240,13 @@ public class MainActivity extends AppCompatActivity implements AudioController.P
     }
 
     @Override
-    public void onFrequenceTranslated(Float frecuencia) {
-        if (frecuencia != null) {
-            moverAguja(frecuencia);
-        }
+    protected void onStop() {
+        super.onStop();
     }
 
-    private void moverAguja(final float reportedFrequency) {
-
-        Log.e("NOTA DETECTADA: ", String.valueOf(reportedFrequency));
-
-        // Buscamos la nota de afinación más cercana
-        final Note nota = selectedTuningType.notaMasParecida(reportedFrequency);
-        // Intervalo de frecuencia en el que vamos a trabajar
-        double rangoFrecuencia = 1200 * Math.log(reportedFrequency / nota.getFrecuencia()) / Math.log(2);
-        // Posición de la aguja
-        final float posicionAguja = (float) (rangoFrecuencia / 100);
-        // Es una buena afinación si está cerca de la frecuencia correcta
-        final boolean esNotaBuena = Math.abs(rangoFrecuencia) < 5.0;
-
-        runOnUiThread(() -> {
-            viewMarker.setTickLabel(0.0F, String.format("%.02fHz", nota.getFrecuencia()));
-            enlightString(nota.getStringNumber());
-            viewMarker.animateTip(posicionAguja);
-            vFrequencyText.setText(String.format("%.02fHz", reportedFrequency));
-
-
-            if (esNotaBuena) {
-                Toast.makeText(getApplicationContext(), "¡Bien afinado!",
-                        Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
-    private void enlightString(int string) {
-        turnOffAllStrings();
-
-        switch (string) {
-            case 1:
-                stringOne.setTextColor(Color.GREEN);
-                stringOne.setTypeface(stringOne.getTypeface(), Typeface.BOLD);
-                break;
-            case 2:
-                stringTwo.setTextColor(Color.GREEN);
-                stringTwo.setTypeface(stringTwo.getTypeface(), Typeface.BOLD);
-                break;
-            case 3:
-                stringThree.setTextColor(Color.GREEN);
-                stringThree.setTypeface(stringThree.getTypeface(), Typeface.BOLD);
-                break;
-            case 4:
-                stringFour.setTextColor(Color.GREEN);
-                stringFour.setTypeface(stringFour.getTypeface(), Typeface.BOLD);
-                break;
-            case 5:
-                stringFive.setTextColor(Color.GREEN);
-                stringFive.setTypeface(stringFive.getTypeface(), Typeface.BOLD);
-                break;
-            case 6:
-                stringSix.setTextColor(Color.GREEN);
-                stringSix.setTypeface(stringSix.getTypeface(), Typeface.BOLD);
-                break;
-        }
-    }
-
-    private void turnOffAllStrings() {
-        stringOne.setTextColor(Color.WHITE);
-        stringTwo.setTextColor(Color.WHITE);
-        stringThree.setTextColor(Color.WHITE);
-        stringFour.setTextColor(Color.WHITE);
-        stringFive.setTextColor(Color.WHITE);
-        stringSix.setTextColor(Color.WHITE);
-
-        stringOne.setTypeface(stringOne.getTypeface(), Typeface.NORMAL);
-        stringTwo.setTypeface(stringTwo.getTypeface(), Typeface.NORMAL);
-        stringThree.setTypeface(stringThree.getTypeface(), Typeface.NORMAL);
-        stringFour.setTypeface(stringFour.getTypeface(), Typeface.NORMAL);
-        stringFive.setTypeface(stringFive.getTypeface(), Typeface.NORMAL);
-        stringSix.setTypeface(stringSix.getTypeface(), Typeface.NORMAL);
-
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 }
 

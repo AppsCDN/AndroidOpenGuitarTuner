@@ -1,19 +1,3 @@
-/*
- * Copyright 2016 andryr
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.guitar_tuner_tv.guitartunertv;
 
 /**
@@ -33,11 +17,9 @@ public class TuningType {
 
         float limiteDerecho = Float.POSITIVE_INFINITY;
         Note notaFinal = null;
-        int index = -1;
 
         for (Note notaIterada: tuningNotes) {
-            final float diferenciaFrecuencia = Math.abs(frecuencia - notaIterada.getFrecuencia());
-            index++;
+            final float diferenciaFrecuencia = Math.abs(frecuencia - notaIterada.getNoteFrequency());
             if (diferenciaFrecuencia < limiteDerecho) {
                 notaFinal = notaIterada;
                 limiteDerecho = diferenciaFrecuencia;
@@ -48,6 +30,30 @@ public class TuningType {
         }
 
         return notaFinal;
+    }
+
+    public Note getClosestAlternative(float x) {
+
+        int low = 0;
+        int high = tuningNotes.length - 1;
+
+        while (low < high) {
+
+            final int mid = (low + high) / 2;
+
+            assert(mid < high);
+
+            final float d1 = Math.abs(tuningNotes[mid  ].getNoteFrequency() - x);
+            final float d2 = Math.abs(tuningNotes[mid+1].getNoteFrequency() - x);
+
+            if (d2 <= d1) {
+                low = mid+1;
+            }
+            else {
+                high = mid;
+            }
+        }
+        return tuningNotes[high];
     }
 
 

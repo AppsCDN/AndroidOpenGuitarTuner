@@ -1,19 +1,3 @@
-/*
- * Copyright 2016 andryr
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.guitar_tuner_tv.guitartunertv;
 
 import android.animation.ValueAnimator;
@@ -120,7 +104,7 @@ public class MarkerView extends View {
         animator.start();
     }
 
-    public void setTipPos(float position) {
+    public void setTipPos(final float position) {
 
         final int width = getWidth() - getPaddingLeft() - getPaddingRight();
         final int height = getHeight() - getPaddingTop() - getPaddingBottom();
@@ -148,9 +132,9 @@ public class MarkerView extends View {
         drawMarker(canvas, width, height, tickLabelHeight);
     }
 
-    private void drawTickLabels(Canvas canvas, int width, int height) {
-        float cx = width / 2.0F + getPaddingLeft();
-        float cy = height + getPaddingTop();
+    private void drawTickLabels(Canvas canvas, final int width, final int height) {
+        final float cx = width / 2.0F + getPaddingLeft();
+        final float cy = height + getPaddingTop();
         dibujado.setColor(colorTexto);
         dibujado.setTextSize(mTickLabelTextSize);
         dibujado.setStrokeWidth(mTextStrokeWidth);
@@ -175,7 +159,7 @@ public class MarkerView extends View {
         }
     }
 
-    private void drawMarker(Canvas canvas, int width, int height, float tickLabelHeight) {
+    private void drawMarker(Canvas canvas, final int width, final int height, float tickLabelHeight) {
 
         final double angleRad = Math.toRadians(markerAngle);
         final float needleLength = height - mArcOffset - tickLabelHeight;
@@ -198,7 +182,7 @@ public class MarkerView extends View {
         canvas.drawCircle(cx, cy, mStrokeWidth*1.5f, dibujado);
     }
 
-    private void drawTicks(Canvas canvas, int width, int height, float tickLabelHeight) {
+    private void drawTicks(Canvas canvas, final int width, final int height, final float tickLabelHeight) {
         dibujado.setStrokeCap(Paint.Cap.SQUARE);
         final float cx = width / 2.0F + getPaddingLeft();
         final float cy = height + getPaddingTop();
@@ -236,7 +220,7 @@ public class MarkerView extends View {
         drawBigTick(canvas, height, tickLabelHeight, cx, cy, currentAngle);
     }
 
-    private void drawSmallTick(Canvas canvas, float height, float tickLabelHeight, float cx, float cy, float angle) {
+    private void drawSmallTick(Canvas canvas, final float height, final float tickLabelHeight, final float cx, final float cy, float angle) {
         dibujado.setColor(minutesMarksColor);
         dibujado.setStrokeWidth(mStrokeWidth / 2.0F);
 
@@ -264,7 +248,7 @@ public class MarkerView extends View {
 
     // Getters
 
-    public void setTickLabel(float pos, String label) {
+    public void setTickLabel(final float pos, final String label) {
         mTickLabels.put(pos, label);
     }
 
