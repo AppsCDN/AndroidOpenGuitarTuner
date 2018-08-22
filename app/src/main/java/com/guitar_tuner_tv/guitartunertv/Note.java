@@ -7,11 +7,12 @@ public class Note {
 
     private float frecuencia;
     private String nombre;
-    private int index;
+    private int stringNumber;
 
-    protected Note(float frecuencia, String nombre) {
+    protected Note(float frecuencia, String nombre, int stringNumber) {
         this.frecuencia = frecuencia;
         this.nombre = nombre;
+        this.stringNumber = stringNumber;
     }
 
     // Getters and setters
@@ -24,11 +25,11 @@ public class Note {
         return nombre;
     }
 
-    public int getIndex() {
-        return index;
+    public int getStringNumber() {
+        return stringNumber;
     }
 
-    public void setIndex(int index) {
-        this.index = index;
+    public void setStringNumber(int stringNumber) {
+        this.stringNumber = stringNumber;
     }
 }

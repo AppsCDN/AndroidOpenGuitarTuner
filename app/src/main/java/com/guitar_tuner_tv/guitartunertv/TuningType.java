@@ -21,24 +21,25 @@ package com.guitar_tuner_tv.guitartunertv;
  */
 public class TuningType {
 
-    private Note[] notasAfinacion;
+    private Note[] tuningNotes;
+    private String tuningName;
 
-    public TuningType(String nombre, Note[] notasAfinacion) {
-        this.notasAfinacion = notasAfinacion;
+    public TuningType(String tuningName, Note[] tuningNotes) {
+        this.tuningName = tuningName;
+        this.tuningNotes = tuningNotes;
     }
 
     public Note notaMasParecida(float frecuencia) {
 
-        float limiteDerecho = Float.MAX_VALUE;
+        float limiteDerecho = Float.POSITIVE_INFINITY;
         Note notaFinal = null;
         int index = -1;
 
-        for (Note notaIterada: notasAfinacion) {
+        for (Note notaIterada: tuningNotes) {
             final float diferenciaFrecuencia = Math.abs(frecuencia - notaIterada.getFrecuencia());
             index++;
             if (diferenciaFrecuencia < limiteDerecho) {
                 notaFinal = notaIterada;
-                notaFinal.setIndex(index);
                 limiteDerecho = diferenciaFrecuencia;
             }
             else{
@@ -49,7 +50,14 @@ public class TuningType {
         return notaFinal;
     }
 
-    public Note[] getNotasAfinacion() {
-        return notasAfinacion;
+
+    // Getters
+
+    public Note[] getTuningNotes() {
+        return tuningNotes;
+    }
+
+    public String getTuningName() {
+        return tuningName;
     }
 }
