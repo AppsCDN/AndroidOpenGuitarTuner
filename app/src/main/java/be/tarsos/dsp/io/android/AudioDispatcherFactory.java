@@ -25,6 +25,9 @@ package be.tarsos.dsp.io.android;
 
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.media.audiofx.AcousticEchoCanceler;
+import android.media.audiofx.AutomaticGainControl;
+import android.media.audiofx.NoiseSuppressor;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.io.PipedAudioStream;
@@ -61,10 +64,13 @@ public class AudioDispatcherFactory {
 		int minAudioBufferSizeInSamples =  minAudioBufferSize/2;
 		if(minAudioBufferSizeInSamples <= audioBufferSize ){
 		AudioRecord audioInputStream = new AudioRecord(
-				MediaRecorder.AudioSource.MIC, sampleRate,
+				MediaRecorder.AudioSource.VOICE_RECOGNITION, sampleRate,
 				android.media.AudioFormat.CHANNEL_IN_MONO,
 				android.media.AudioFormat.ENCODING_PCM_16BIT,
 				audioBufferSize * 2);
+
+		// NoiseReduction trick
+		activateNoiseReducction(audioInputStream);
 
 		TarsosDSPAudioFormat format = new TarsosDSPAudioFormat(sampleRate, 16,1, true, false);
 		
@@ -77,6 +83,20 @@ public class AudioDispatcherFactory {
 		}
 	}
 
+	public static void activateNoiseReducction(AudioRecord ar) {
+
+		int audioSessionId = ar.getAudioSessionId();
+
+		if (NoiseSuppressor.isAvailable()) {
+			NoiseSuppressor.create(audioSessionId);
+		}
+		if (AutomaticGainControl.isAvailable()) {
+			AutomaticGainControl.create(audioSessionId);
+		}
+		if (AcousticEchoCanceler.isAvailable()) {
+			AcousticEchoCanceler.create(audioSessionId);
+		}
+	}
 
 	/**
 	 * Create a stream from a piped sub process and use that to create a new

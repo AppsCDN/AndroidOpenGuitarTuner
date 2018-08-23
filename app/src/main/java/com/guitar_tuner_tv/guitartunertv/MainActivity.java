@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements AudioController.P
             vFrequencyText.setText(String.format("%.02fHz", selectedTuningType.getTuningNotes()[0].getNoteFrequency()));
 
             // Starts the AsyncTask to capture audio
-            new AudioController(selectedTuningType, this).execute();
+            new AudioController(this).execute();
         }
     }
 

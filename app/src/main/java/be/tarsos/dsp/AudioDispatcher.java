@@ -1,24 +1,24 @@
 /*
-*      _______                       _____   _____ _____  
-*     |__   __|                     |  __ \ / ____|  __ \ 
+*      _______                       _____   _____ _____
+*     |__   __|                     |  __ \ / ____|  __ \
 *        | | __ _ _ __ ___  ___  ___| |  | | (___ | |__) |
-*        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/ 
-*        | | (_| | |  \__ \ (_) \__ \ |__| |____) | |     
-*        |_|\__,_|_|  |___/\___/|___/_____/|_____/|_|     
-*                                                         
+*        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/
+*        | | (_| | |  \__ \ (_) \__ \ |__| |____) | |
+*        |_|\__,_|_|  |___/\___/|___/_____/|_____/|_|
+*
 * -------------------------------------------------------------
 *
 * TarsosDSP is developed by Joren Six at IPEM, University Ghent
-*  
+*
 * -------------------------------------------------------------
 *
 *  Info: http://0110.be/tag/TarsosDSP
 *  Github: https://github.com/JorenSix/TarsosDSP
 *  Releases: http://0110.be/releases/TarsosDSP/
-*  
+*
 *  TarsosDSP includes modified source code by various authors,
 *  for credits and info, see README.
-* 
+*
 */
 
 
@@ -79,7 +79,7 @@ public class AudioDispatcher implements Runnable {
 	 * versa).
 	 */
 	private final TarsosDSPAudioFloatConverter converter;
-	
+
 	private final TarsosDSPAudioFormat format;
 
 	/**
@@ -95,30 +95,30 @@ public class AudioDispatcher implements Runnable {
 	 * bits or 1,2,3,... bytes are supported.
 	 */
 	private int byteOverlap, byteStepSize;
-	
-	
+
+
 	/**
 	 * The number of bytes to skip before processing starts.
 	 */
 	private long bytesToSkip;
-	
+
 	/**
 	 * Position in the stream in bytes. e.g. if 44100 bytes are processed and 16
 	 * bits per frame are used then you are 0.5 seconds into the stream.
 	 */
 	private long bytesProcessed;
-	
-	
+
+
 	/**
 	 * The audio event that is send through the processing chain.
 	 */
 	private AudioEvent audioEvent;
-	
+
 	/**
 	 * If true the dispatcher stops dispatching audio.
 	 */
 	private boolean stopped;
-	
+
 	/**
 	 * If true then the first buffer is only filled up to buffer size - hop size
 	 * E.g. if the buffer is 2048 and the hop size is 48 then you get 2000 times
@@ -126,7 +126,7 @@ public class AudioDispatcher implements Runnable {
 	 * mostly zeros and 96 samples.
 	 */
 	private boolean zeroPadFirstBuffer;
-	
+
 	/**
 	 * If true then the last buffer is zero padded. Otherwise the buffer is
 	 * shortened to the remaining number of samples. If false then the audio
@@ -136,7 +136,7 @@ public class AudioDispatcher implements Runnable {
 
 	/**
 	 * Create a new dispatcher from a stream.
-	 * 
+	 *
 	 * @param stream
 	 *            The stream to read data from.
 	 * @param audioBufferSize
@@ -154,36 +154,36 @@ public class AudioDispatcher implements Runnable {
 		audioInputStream = stream;
 
 		format = audioInputStream.getFormat();
-		
-			
+
+
 		setStepSizeAndOverlap(audioBufferSize, bufferOverlap);
-		
+
 		audioEvent = new AudioEvent(format);
 		audioEvent.setFloatBuffer(audioFloatBuffer);
 		audioEvent.setOverlap(bufferOverlap);
-		
+
 		converter = TarsosDSPAudioFloatConverter.getConverter(format);
-		
+
 		stopped = false;
-		
+
 		bytesToSkip = 0;
-		
+
 		zeroPadLastBuffer = true;
-	}	
-	
+	}
+
 	/**
 	 * Skip a number of seconds before processing the stream.
 	 * @param seconds
 	 */
 	public void skip(double seconds){
-		bytesToSkip = Math.round(seconds * format.getSampleRate()) * format.getFrameSize(); 
+		bytesToSkip = Math.round(seconds * format.getSampleRate()) * format.getFrameSize();
 	}
-	
+
 	/**
 	 * Set a new step size and overlap size. Both in number of samples. Watch
 	 * out with this method: it should be called after a batch of samples is
 	 * processed, not during.
-	 * 
+	 *
 	 * @param audioBufferSize
 	 *            The size of the buffer defines how much samples are processed
 	 *            in one step. Common values are 1024,2048.
@@ -200,31 +200,31 @@ public class AudioDispatcher implements Runnable {
 		byteOverlap = floatOverlap * format.getFrameSize();
 		byteStepSize = floatStepSize * format.getFrameSize();
 	}
-	
+
 	/**
 	 * if zero pad is true then the first buffer is only filled up to  buffer size - hop size
 	 * E.g. if the buffer is 2048 and the hop size is 48 then you get 2000x0 and 48 filled audio samples
 	 * @param zeroPadFirstBuffer true if the buffer should be zeroPadFirstBuffer, false otherwise.
 	 */
 	public void setZeroPadFirstBuffer(boolean zeroPadFirstBuffer){
-		this.zeroPadFirstBuffer = zeroPadFirstBuffer;		
+		this.zeroPadFirstBuffer = zeroPadFirstBuffer;
 	}
-	
+
 	/**
 	 * If zero pad last buffer is true then the last buffer is filled with zeros until the normal amount
 	 * of elements are present in the buffer. Otherwise the buffer only contains the last elements and no zeros.
 	 * By default it is set to true.
-	 * 
+	 *
 	 * @param zeroPadLastBuffer
 	 */
 	public void setZeroPadLastBuffer(boolean zeroPadLastBuffer) {
 		this.zeroPadLastBuffer = zeroPadLastBuffer;
 	}
-	
+
 
 	/**
 	 * Adds an ProcesadorAudio to the chain of processors.
-	 * 
+	 *
 	 * @param audioProcessor
 	 *            The ProcesadorAudio to add.
 	 */
@@ -232,10 +232,10 @@ public class AudioDispatcher implements Runnable {
 		audioProcessors.add(audioProcessor);
 		LOG.fine("Added an audioprocessor to the list of processors: " + audioProcessor.toString());
 	}
-	
+
 	/**
 	 * Removes an ProcesadorAudio to the chain of processors and calls its <code>processingFinished</code> method.
-	 * 
+	 *
 	 * @param audioProcessor
 	 *            The ProcesadorAudio to remove.
 	 */
@@ -246,62 +246,62 @@ public class AudioDispatcher implements Runnable {
 	}
 
 	public void run() {
-		
+
 		int bytesRead = 0;
-		
+
 		if(bytesToSkip!=0){
 			skipToStart();
 		}
-	
+
 		//Read the first (and in some cases last) audio block.
 		try {
 			//needed to get correct time info when skipping first x seconds
 			audioEvent.setBytesProcessed(bytesProcessed);
 			bytesRead = readNextAudioBlock();
 		} catch (IOException e) {
-			String message="Error while reading audio input stream: " + e.getMessage();	
+			String message="Error while reading audio input stream: " + e.getMessage();
 			LOG.warning(message);
 			throw new Error(message);
 		}
 
 		// As long as the stream has not ended
 		while (bytesRead != 0 && !stopped) {
-			
+
 			//Makes sure the right buffers are processed, they can be changed by audio processors.
 			for (final AudioProcessor processor : audioProcessors) {
 				if(!processor.process(audioEvent)){
 					//skip to the next audio processors if false is returned.
 					break;
-				}	
+				}
 			}
-			
-			if(!stopped){			
+
+			if(!stopped){
 				//Update the number of bytes processed;
 				bytesProcessed += bytesRead;
 				audioEvent.setBytesProcessed(bytesProcessed);
-					
+
 				// Read, convert and process consecutive overlapping buffers.
 				// Slide the buffer.
 				try {
 					bytesRead = readNextAudioBlock();
 					audioEvent.setOverlap(floatOverlap);
 				} catch (IOException e) {
-					String message="Error while reading audio input stream: " + e.getMessage();	
+					String message="Error while reading audio input stream: " + e.getMessage();
 					LOG.warning(message);
 					throw new Error(message);
 				}
 			}
 		}
 
-		// Notify all processors that no more data is available. 
+		// Notify all processors that no more data is available.
 		// when stop() is called processingFinished is called explicitly, no need to do this again.
 		// The explicit call is to prevent timing issues.
 		if(!stopped){
 			stop();
 		}
 	}
-	
-	
+
+
 	private void skipToStart() {
 		long skipped = 0l;
 		try{
@@ -311,7 +311,7 @@ public class AudioDispatcher implements Runnable {
 			}
 			bytesProcessed += bytesToSkip;
 		}catch(IOException e){
-			String message=String.format("Did not skip the expected amount of bytes,  %d skipped, %d expected!", skipped,bytesToSkip);	
+			String message=String.format("Did not skip the expected amount of bytes,  %d skipped, %d expected!", skipped,bytesToSkip);
 			LOG.warning(message);
 			throw new Error(message);
 		}
@@ -337,10 +337,10 @@ public class AudioDispatcher implements Runnable {
 	 * by the audio buffer size minus the overlap. If the expected number of
 	 * bytes could not be read either the end of the stream is reached or
 	 * something went wrong.
-	 * 
+	 *
 	 * The behavior for the first and last buffer is defined by their corresponding the zero pad settings. The method also handles the case if
 	 * the first buffer is also the last.
-	 * 
+	 *
 	 * @return The number of bytes read.
 	 * @throws IOException
 	 *             When something goes wrong while reading the stream. In
@@ -349,14 +349,14 @@ public class AudioDispatcher implements Runnable {
 	 */
 	private int readNextAudioBlock() throws IOException {
 		assert floatOverlap < audioFloatBuffer.length;
-		
+
 		// Is this the first buffer?
 		boolean isFirstBuffer = (bytesProcessed ==0 || bytesProcessed == bytesToSkip);
-		
+
 		final int offsetInBytes;
-		
+
 		final int offsetInSamples;
-		
+
 		final int bytesToRead;
 		//Determine the amount of bytes to read from the stream
 		if(isFirstBuffer && !zeroPadFirstBuffer){
@@ -372,7 +372,7 @@ public class AudioDispatcher implements Runnable {
 			offsetInBytes = byteOverlap;
 			offsetInSamples = floatOverlap;
 		}
-		
+
 		//Shift the audio information using array copy since it is probably faster than manually shifting it.
 		// No need to do this on the first buffer
 		if(!isFirstBuffer && audioFloatBuffer.length == floatOverlap + floatStepSize ){
@@ -382,18 +382,18 @@ public class AudioDispatcher implements Runnable {
 				audioFloatBuffer[i-floatStepSize] = audioFloatBuffer[i];
 			}*/
 		}
-		
+
 		// Total amount of bytes read
 		int totalBytesRead = 0;
-		
+
 		// The amount of bytes read from the stream during one iteration.
 		int bytesRead=0;
-		
+
 		// Is the end of the stream reached?
 		boolean endOfStream = false;
-				
+
 		// Always try to read the 'bytesToRead' amount of bytes.
-		// unless the stream is closed (stopped is true) or no bytes could be read during one iteration 
+		// unless the stream is closed (stopped is true) or no bytes could be read during one iteration
 		while(!stopped && !endOfStream && totalBytesRead<bytesToRead){
 			try{
 				bytesRead = audioInputStream.read(audioByteBuffer, offsetInBytes + totalBytesRead , bytesToRead - totalBytesRead);
@@ -406,11 +406,11 @@ public class AudioDispatcher implements Runnable {
 				// The end of the stream is reached if the number of bytes read during this iteration equals -1
 				endOfStream = true;
 			}else{
-				// Otherwise add the number of bytes read to the total 
+				// Otherwise add the number of bytes read to the total
 				totalBytesRead += bytesRead;
 			}
 		}
-		
+
 		if(endOfStream){
 			// Could not read a full buffer from the stream, there are two options:
 			if(zeroPadLastBuffer){
@@ -429,9 +429,9 @@ public class AudioDispatcher implements Runnable {
 				int totalSamplesRead = totalBytesRead/format.getFrameSize();
 				audioFloatBuffer = new float[offsetInSamples + totalBytesRead/format.getFrameSize()];
 				converter.toFloatArray(audioByteBuffer, offsetInBytes, audioFloatBuffer, offsetInSamples, totalSamplesRead);
-				
-				
-			}			
+
+
+			}
 		}else if(bytesToRead == totalBytesRead) {
 			// The expected amount of bytes have been read from the stream.
 			if(isFirstBuffer && !zeroPadFirstBuffer){
@@ -441,25 +441,25 @@ public class AudioDispatcher implements Runnable {
 			}
 		} else if(!stopped) {
 			// If the end of the stream has not been reached and the number of bytes read is not the
-			// expected amount of bytes, then we are in an invalid state; 
+			// expected amount of bytes, then we are in an invalid state;
 			throw new IOException(String.format("The end of the audio stream has not been reached and the number of bytes read (%d) is not equal "
 					+ "to the expected amount of bytes(%d).", totalBytesRead,bytesToRead));
 		}
-		
-		
+
+
 		// Makes sure AudioEvent contains correct info.
 		audioEvent.setFloatBuffer(audioFloatBuffer);
 		audioEvent.setOverlap(offsetInSamples);
-		
-		return totalBytesRead; 
+
+		return totalBytesRead;
 	}
-	
+
 	public TarsosDSPAudioFormat getFormat(){
 		return format;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return The currently processed number of seconds.
 	 */
 	public float secondsProcessed(){
@@ -475,5 +475,5 @@ public class AudioDispatcher implements Runnable {
 	public boolean isStopped(){
 		return stopped;
 	}
-	
+
 }

@@ -24,13 +24,13 @@ public class AudioController extends AsyncTask<Float, Float, Float> {
     private static final int SAMPLE_RATE = 44100;
     private static final int BUFFER_SIZE = 4096;
     private static final int RECORD_OVERLAPS = 3072;
-    private static final int MIN_SIMILAR_TAKES = 35;
-    private static final float FREQ_TOLERANCE = 80F;
+    private static final int MIN_SIMILAR_TAKES = 50;
+    private static final float FREQ_TOLERANCE = 200F;
 
     private static List<Float> recordedFrequencies = new ArrayList<>();
     private static PublisherResults resultsPublisher;
 
-    public AudioController(TuningType tuningType, Activity mActivity) {
+    public AudioController(Activity mActivity) {
         resultsPublisher = (PublisherResults) mActivity;
     }
 
