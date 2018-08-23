@@ -20,16 +20,14 @@
         android:paddingRight="16dp"
         android:paddingTop="16dp">
 
-
-        <TextView
-            android:id="@+id/tuningName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <com.yarolegovich.discretescrollview.DiscreteScrollView
+            android:id="@+id/tuningPicker"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="20dp"
             android:fontFamily="@font/roboto_light"
-            android:textSize="30sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -41,13 +39,13 @@
             android:layout_marginBottom="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="8dp"
             android:layout_weight="3"
             android:padding="10dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tuningName" />
+            app:layout_constraintTop_toBottomOf="@+id/tuningPicker" />
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/constraintLayout"

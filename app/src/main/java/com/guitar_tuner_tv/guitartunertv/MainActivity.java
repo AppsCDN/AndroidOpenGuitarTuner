@@ -7,23 +7,35 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.guitar_tuner_tv.guitartunertv.Intro.IntroActivity;
+import com.yarolegovich.discretescrollview.DSVOrientation;
+import com.yarolegovich.discretescrollview.DiscreteScrollView;
+import com.yarolegovich.discretescrollview.InfiniteScrollAdapter;
+import com.yarolegovich.discretescrollview.transform.ScaleTransformer;
+
+import java.util.List;
 
 import static com.guitar_tuner_tv.guitartunertv.AudioController.setIsMicRecording;
 
-/*
+/**
  * MainActivity class.
+ * Created by sbarjola on 23/08/2018
  */
-public class MainActivity extends AppCompatActivity implements AudioController.PublisherResults {
+public class MainActivity extends AppCompatActivity implements AudioController.PublisherResults, DiscreteScrollView.OnItemChangedListener,
+        View.OnClickListener {
 
     // Current tuning type
     private TuningType selectedTuningType;
+    private List<TuningType> tuningTypes;
 
     // View objects
     private MarkerView viewMarker;
@@ -37,6 +49,10 @@ public class MainActivity extends AppCompatActivity implements AudioController.P
     private TextView stringFour;
     private TextView stringFive;
     private TextView stringSix;
+
+    // Horizontal ScrollView
+    private DiscreteScrollView itemPicker;
+    private InfiniteScrollAdapter infiniteAdapter;
 
     @Override
     protected void onStart() {
@@ -52,12 +68,13 @@ public class MainActivity extends AppCompatActivity implements AudioController.P
     protected void onCreate(Bundle savedInstanceState) {
         // After showing the splash screen we load the real app theme.
         setTheme(R.style.NoActionBar);
-
         super.onCreate(savedInstanceState);
 
         // Checks if it's the first time the APP is opened. If it's it redirects to the intro activities.
         SharedPreferences sp = getSharedPreferences("myPref", Context.MODE_PRIVATE);
+
         if (!sp.getBoolean("first", false)) {
+
             // Stops recording
             setIsMicRecording(false);
 
@@ -65,25 +82,37 @@ public class MainActivity extends AppCompatActivity implements AudioController.P
             Intent intent = new Intent(this, IntroActivity.class);
             startActivity(intent);
             finish();
+
         } else {
             //Inflate the view
             setContentView(R.layout.activity_main);
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-            // Set the current tuning
-            setTunningType(new TuningType("Afinación estándar",
-                    new Note[]{
-                            new Note(82.41F, "E", 6),
-                            new Note(110.00F, "A", 5),
-                            new Note(146.83F, "D", 4),
-                            new Note(196.00F, "G", 3),
-                            new Note(246.94F, "B", 2),
-                            new Note(329.63F, "E", 1),
-                    }));
-
             // View references
             viewMarker = findViewById(R.id.aguja);
             vFrequencyText = findViewById(R.id.frequency_view);
+            itemPicker = findViewById(R.id.tuningPicker);
+
+            stringOne = findViewById(R.id.stringOne);
+            stringTwo = findViewById(R.id.stringTwo);
+            stringThree = findViewById(R.id.stringThree);
+            stringFour = findViewById(R.id.stringFour);
+            stringFive = findViewById(R.id.stringFive);
+            stringSix = findViewById(R.id.stringSix);
+
+            // Get the different tunings
+            tuningTypes = Tunnings.getTuningTypes();
+
+            // Horizontal ScrollView
+            itemPicker.setOrientation(DSVOrientation.HORIZONTAL);
+            itemPicker.addOnItemChangedListener(this);
+            infiniteAdapter = InfiniteScrollAdapter.wrap(new TuningTypeAdapter(tuningTypes));
+            itemPicker.setAdapter(infiniteAdapter);
+            itemPicker.setItemTransitionTimeMillis(150);
+            itemPicker.setItemTransformer(new ScaleTransformer.Builder()
+                    .setMinScale(0.8f)
+                    .build());
+            setTunningType(tuningTypes.get(0));
 
             // Needle set up and UI adjustments
             viewMarker.setTickLabel(-1.0F, "-100c");
@@ -96,6 +125,16 @@ public class MainActivity extends AppCompatActivity implements AudioController.P
         }
     }
 
+    @Override
+    public void onClick(View v) {
+        //Empty method currently
+    }
+
+    @Override
+    public void onCurrentItemChanged(@Nullable RecyclerView.ViewHolder viewHolder, int position) {
+        setTunningType(tuningTypes.get(infiniteAdapter.getRealPosition(position)));
+    }
+
     /**
      * Sets the current tuning to the APP.
      * @param tt tuning type to set.
@@ -104,15 +143,6 @@ public class MainActivity extends AppCompatActivity implements AudioController.P
 
         this.selectedTuningType = tt;
 
-        // View references
-        stringOne = findViewById(R.id.stringOne);
-        stringTwo = findViewById(R.id.stringTwo);
-        stringThree = findViewById(R.id.stringThree);
-        stringFour = findViewById(R.id.stringFour);
-        stringFive = findViewById(R.id.stringFive);
-        stringSix = findViewById(R.id.stringSix);
-        tuningName = findViewById(R.id.tuningName);
-
         // Sets the current tuning notes to the strings
         stringSix.setText(tt.getTuningNotes()[0].getNoteName());
         stringFive.setText(tt.getTuningNotes()[1].getNoteName());
@@ -120,9 +150,6 @@ public class MainActivity extends AppCompatActivity implements AudioController.P
         stringThree.setText(tt.getTuningNotes()[3].getNoteName());
         stringTwo.setText(tt.getTuningNotes()[4].getNoteName());
         stringOne.setText(tt.getTuningNotes()[5].getNoteName());
-
-        // Sets the current tuning name
-        tuningName.setText(tt.getTuningName());
     }
 
     @Override
